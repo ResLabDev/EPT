@@ -1,2 +1,2 @@
-# EmbSys
-Embedded System Development
+# EPT
+Execution Performance Tester
