@@ -5,8 +5,6 @@
 #ifndef _COMMON_H_
 #define _COMMON_H_
 
-#include <string.h>
-
 //-------------------
 // Status Response
 //-------------------
@@ -28,8 +26,9 @@ typedef struct status
 } status_t;
 
 //-------------------
-// DEBUG
+// Function Prototypes
 //-------------------
-#define DEBUG_INIT		0
+void stringCopy (char *target, char *source);
+
 
 #endif			// _COMMON_H_

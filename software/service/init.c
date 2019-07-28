@@ -25,7 +25,7 @@ status_t ramInit(int addressStart, int addressStop, unsigned int data)
 	if ((addressStart > addressStop) || (addressStop > EPT_RAM_ADDRESS_MAX))
 	{
 		status.type = INVALID_ADDRESS;
-		strcpy(status.description, "FAIL - Invalid input address");
+		stringCopy(status.description, "FAIL - Invalid input address");
 		return status;
 	}
 	// Fill RAM with the data
@@ -37,7 +37,7 @@ status_t ramInit(int addressStart, int addressStop, unsigned int data)
 			if (data != (unsigned int)*ram)				// Validate the written data
 			{
 				status.type = RAM_ACCESS;
-				strcpy(status.description, "FAIL - RAM data mismatch");
+				stringCopy(status.description, "FAIL - RAM data mismatch");
 				return status;
 			}
 		}
@@ -61,35 +61,27 @@ ioOffset_t ioOffsetCalibration(int numberOfTasks)
 	int i;
 
 // --- 1. RAM initialization ---
-#if DEBUG_INIT
-	printf("  -> RamInit...\n");
-#endif		// DEBUG_INIT
-
 	DRV_EPT_RESET;								// Module Reset
 	if (!DRV_EPT_STATUS_GET)					// Check module status
 	{
 		ioOffset.status.type = EPT_STATUS;
-		strcpy(ioOffset.status.description, "FAIL - ETP module is not ready");
+		stringCopy(ioOffset.status.description, "FAIL - ETP module is not ready");
 		return ioOffset;
 	}
 	status = ramInit(0, EPT_RAM_ADDRESS_MAX, 0);
 	if (status.type)		// Get status from RAM initialization
 	{
 		ioOffset.status.type = RAM_ACCESS;
-		strcpy(ioOffset.status.description, "FAIL - RAM initialization is failed");
+		stringCopy(ioOffset.status.description, "FAIL - RAM initialization is failed");
 		return ioOffset;						// Initialization failed
 	}
 
 // --- 2. Run TaskID IO offset measurement ---
-	// Validate Number of Tasks Input
-#if DEBUG_INIT
-	printf("  -> Run Task...\n");
-#endif		// DEBUG_INIT
 	// Validate maximum number of tasks
 	if (numberOfTasks > TASK_ID_MAX)
 	{
 		ioOffset.status.type = INVALID_DATA;
-		strcpy(ioOffset.status.description, "FAIL - Number of tasks is out of the limit");
+		stringCopy(ioOffset.status.description, "FAIL - Number of tasks is out of the limit");
 		return ioOffset;
 	}
 	// Measure IO overhead for each task
@@ -97,7 +89,7 @@ ioOffset_t ioOffsetCalibration(int numberOfTasks)
 	if (DRV_EPT_STATUS_GET)						// Check module status
 	{
 		ioOffset.status.type = EPT_STATUS;
-		strcpy(ioOffset.status.description, "FAIL - ETP module is not ready");
+		stringCopy(ioOffset.status.description, "FAIL - ETP module is not ready");
 		return ioOffset;
 	}
 	i = numberOfTasks;
@@ -113,15 +105,11 @@ SetTask:
 	}
 
 // --- 3. Read all task data from RAM ---
-#if DEBUG_INIT
-	printf("  -> Read All Task from RAM...\n");
-#endif		// DEBUG_INIT
-
 	DRV_EPT_STOP;							// RAM is accessible only at module ready status
 	if (!DRV_EPT_STATUS_GET)				// Check module status
 	{
 		ioOffset.status.type = EPT_STATUS;
-		strcpy(ioOffset.status.description, "FAIL - ETP module is not ready");
+		stringCopy(ioOffset.status.description, "FAIL - ETP module is not ready");
 		return ioOffset;
 	}
 	ramPtr = ramStartPtr;	// Reinitialize RAM pointer
@@ -133,9 +121,6 @@ SetTask:
 	}
 
 // --- 4. Evaluating the obtained data ---
-#if DEBUG_INIT
-	printf("  -> Calculating Statistic: %d - %d\n", taskResult[0], taskResult[1]);
-#endif		// DEBUG_INIT
 	// Calculating the result
 	ioOffset.result = stdevCalc(taskResult, numberOfTasks);
 
@@ -145,7 +130,7 @@ SetTask:
 	if (((alt_u8) ioOffset.result.mean) != DRV_EPT_IOOF_GET)
 	{
 		ioOffset.status.type = INVALID_DATA;
-		strcpy(ioOffset.status.description, "Unable to set EPT I/O offset");
+		stringCopy(ioOffset.status.description, "Unable to set EPT I/O offset");
 	}
 
 	return ioOffset;

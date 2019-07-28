@@ -42,5 +42,4 @@ status_t ramInit(int addressStart, int addressStop, unsigned int data);		// Fill
 ioOffset_t ioOffsetCalibration(int numberOfTasks);							// I/O START-STOP offset validation for each task IDs
 
 
-
 #endif			// _INIT_H_
